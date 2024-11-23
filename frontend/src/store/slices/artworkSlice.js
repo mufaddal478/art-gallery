@@ -14,10 +14,10 @@ export const getArtworks = createAsyncThunk(
   'artworks/getAll',
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get('/api/artworks');
+      const response = await axios.get('http://localhost:5000/api/artworks');
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -27,10 +27,10 @@ export const getFeaturedArtworks = createAsyncThunk(
   'artworks/getFeatured',
   async (_, thunkAPI) => {
     try {
-      const response = await axios.get('/api/artworks/featured');
+      const response = await axios.get('http://localhost:5000/api/artworks/featured');
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -40,10 +40,10 @@ export const getArtworkDetails = createAsyncThunk(
   'artworks/getDetails',
   async (id, thunkAPI) => {
     try {
-      const response = await axios.get(`/api/artworks/${id}`);
+      const response = await axios.get(`http://localhost:5000/api/artworks/${id}`);
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -60,10 +60,10 @@ export const addArtwork = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.post('/api/artworks', artworkData, config);
+      const response = await axios.post('http://localhost:5000/api/artworks', artworkData, config);
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -80,10 +80,10 @@ export const updateArtwork = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.put(`/api/artworks/${id}`, artworkData, config);
+      const response = await axios.put(`http://localhost:5000/api/artworks/${id}`, artworkData, config);
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -99,10 +99,10 @@ export const deleteArtwork = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      await axios.delete(`/api/artworks/${id}`, config);
+      await axios.delete(`http://localhost:5000/api/artworks/${id}`, config);
       return id;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -118,14 +118,10 @@ export const addReview = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await axios.post(
-        `/api/artworks/${artworkId}/reviews`,
-        reviewData,
-        config
-      );
+      const response = await axios.post(`http://localhost:5000/api/artworks/${artworkId}/reviews`, reviewData, config);
       return response.data;
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -135,6 +131,8 @@ const artworkSlice = createSlice({
   initialState,
   reducers: {
     reset: (state) => {
+      state.artworks = [];
+      state.artwork = null;
       state.isLoading = false;
       state.isError = false;
       state.message = '';
@@ -144,18 +142,23 @@ const artworkSlice = createSlice({
     builder
       .addCase(getArtworks.pending, (state) => {
         state.isLoading = true;
+        state.isError = false;
+        state.message = '';
       })
       .addCase(getArtworks.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.artworks = action.payload;
+        state.isError = false;
+        state.artworks = Array.isArray(action.payload) ? action.payload : [];
+        state.message = '';
       })
       .addCase(getArtworks.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload?.message || 'Failed to fetch artworks';
+        state.message = action.payload;
+        state.artworks = [];
       })
       .addCase(getFeaturedArtworks.fulfilled, (state, action) => {
-        state.artworks = action.payload;
+        state.artworks = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(getArtworkDetails.pending, (state) => {
         state.isLoading = true;
@@ -167,7 +170,7 @@ const artworkSlice = createSlice({
       .addCase(getArtworkDetails.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload?.message || 'Failed to fetch artwork details';
+        state.message = action.payload;
       })
       .addCase(addArtwork.fulfilled, (state, action) => {
         state.artworks.push(action.payload);

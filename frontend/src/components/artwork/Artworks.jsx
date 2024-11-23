@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 
 const Artworks = () => {
   const dispatch = useDispatch();
-  const { artworks, isLoading, error } = useSelector((state) => state.artwork);
+  const { artworks = [], isLoading, error } = useSelector((state) => state.artworks);
   const [filters, setFilters] = useState({
     category: '',
     priceRange: '',
@@ -39,29 +39,31 @@ const Artworks = () => {
     }));
   };
 
-  const filteredArtworks = artworks
-    .filter((artwork) => {
-      if (!filters.category) return true;
-      return artwork.category === filters.category;
-    })
-    .filter((artwork) => {
-      if (!filters.priceRange) return true;
-      const [min, max] = filters.priceRange.split('-').map(Number);
-      return artwork.price >= min && artwork.price <= max;
-    })
-    .sort((a, b) => {
-      switch (filters.sortBy) {
-        case 'price-low-high':
-          return a.price - b.price;
-        case 'price-high-low':
-          return b.price - a.price;
-        case 'oldest':
-          return new Date(a.createdAt) - new Date(b.createdAt);
-        case 'newest':
-        default:
-          return new Date(b.createdAt) - new Date(a.createdAt);
-      }
-    });
+  const filteredArtworks = Array.isArray(artworks) 
+    ? artworks
+      .filter((artwork) => {
+        if (!filters.category) return true;
+        return artwork.category === filters.category;
+      })
+      .filter((artwork) => {
+        if (!filters.priceRange) return true;
+        const [min, max] = filters.priceRange.split('-').map(Number);
+        return artwork.price >= min && artwork.price <= max;
+      })
+      .sort((a, b) => {
+        switch (filters.sortBy) {
+          case 'price-low-high':
+            return a.price - b.price;
+          case 'price-high-low':
+            return b.price - a.price;
+          case 'oldest':
+            return new Date(a.createdAt) - new Date(b.createdAt);
+          case 'newest':
+          default:
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+      })
+    : [];
 
   if (isLoading) {
     return (
@@ -136,7 +138,7 @@ const Artworks = () => {
       <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
         {filteredArtworks.map((artwork) => (
           <div key={artwork._id} className="group">
-            <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-w-7 xl:aspect-h-8">
+            <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200">
               <img
                 src={artwork.image}
                 alt={artwork.title}
@@ -151,13 +153,13 @@ const Artworks = () => {
                     {artwork.title}
                   </Link>
                 </h3>
-                <p className="mt-1 text-sm text-gray-500">{artwork.artist}</p>
+                <p className="mt-1 text-sm text-gray-500">{artwork.category}</p>
               </div>
               <p className="text-sm font-medium text-gray-900">${artwork.price}</p>
             </div>
             <button
               onClick={() => handleAddToCart(artwork)}
-              className="mt-4 w-full bg-indigo-600 border border-transparent rounded-md py-2 px-4 flex items-center justify-center text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="mt-2 w-full rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
               Add to Cart
             </button>
@@ -165,11 +167,12 @@ const Artworks = () => {
         ))}
       </div>
 
-      {filteredArtworks.length === 0 && (
+      {/* No Results */}
+      {filteredArtworks.length === 0 && !isLoading && (
         <div className="text-center py-12">
           <h3 className="text-lg font-medium text-gray-900">No artworks found</h3>
           <p className="mt-2 text-sm text-gray-500">
-            Try adjusting your filters to find what you're looking for.
+            Try adjusting your filters or check back later for new artworks.
           </p>
         </div>
       )}
