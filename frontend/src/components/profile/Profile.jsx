@@ -196,6 +196,21 @@ const Profile = () => {
                             {loading ? 'Saving...' : 'Save Changes'}
                         </button>
                     </div>
+                    <div className="mt-6">
+                        <button 
+                            type="button" 
+                            onClick={() => dispatch(getProfile())} 
+                            className="mr-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                        >
+                            Save Changes
+                        </button>
+                    </div>
                 </Form>
             )}
         </Formik>
@@ -214,7 +229,7 @@ const Profile = () => {
                 resetForm();
             }}
         >
-            {({ values, errors, touched, handleChange, handleBlur }) => (
+            {({ values, errors, touched, handleChange, handleBlur, resetForm }) => (
                 <Form className="space-y-6">
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Current Password</label>
@@ -273,6 +288,12 @@ const Profile = () => {
                             disabled={loading}
                             className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50"
                         >
+                            {loading ? 'Updating...' : 'Update Password'}
+                        </button>
+                    </div>
+                    <div className="mt-6">
+                        <button type="button" onClick={resetForm} className="mr-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">Cancel</button>
+                        <button type="submit" disabled={loading} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded disabled:opacity-50">
                             {loading ? 'Updating...' : 'Update Password'}
                         </button>
                     </div>
