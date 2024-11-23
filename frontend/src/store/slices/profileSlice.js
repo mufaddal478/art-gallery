@@ -6,10 +6,10 @@ export const getProfile = createAsyncThunk(
     'profile/getProfile',
     async (_, { rejectWithValue }) => {
         try {
-            const response = await axios.get('/api/profile');
+            const response = await axios.get('http://localhost:5000/api/profile');
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
@@ -18,10 +18,10 @@ export const updateProfile = createAsyncThunk(
     'profile/updateProfile',
     async (profileData, { rejectWithValue }) => {
         try {
-            const response = await axios.put('/api/profile', profileData);
+            const response = await axios.put('http://localhost:5000/api/profile', profileData);
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
@@ -30,10 +30,10 @@ export const updatePassword = createAsyncThunk(
     'profile/updatePassword',
     async (passwordData, { rejectWithValue }) => {
         try {
-            const response = await axios.put('/api/profile/password', passwordData);
+            const response = await axios.put('http://localhost:5000/api/profile/password', passwordData);
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
@@ -47,10 +47,10 @@ export const updateAvatar = createAsyncThunk(
                     'Content-Type': 'multipart/form-data'
                 }
             };
-            const response = await axios.put('/api/profile/avatar', formData, config);
+            const response = await axios.put('http://localhost:5000/api/profile/avatar', formData, config);
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
@@ -59,10 +59,10 @@ export const toggleFavorite = createAsyncThunk(
     'profile/toggleFavorite',
     async (artworkId, { rejectWithValue }) => {
         try {
-            const response = await axios.put(`/api/profile/favorites/${artworkId}`);
+            const response = await axios.put(`http://localhost:5000/api/profile/favorites/${artworkId}`);
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data?.message || error.message);
         }
     }
 );
@@ -98,7 +98,7 @@ const profileSlice = createSlice({
             })
             .addCase(getProfile.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || 'Failed to fetch profile';
+                state.error = action.payload;
             })
             // Update Profile
             .addCase(updateProfile.pending, (state) => {
@@ -112,7 +112,7 @@ const profileSlice = createSlice({
             })
             .addCase(updateProfile.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || 'Failed to update profile';
+                state.error = action.payload;
             })
             // Update Password
             .addCase(updatePassword.pending, (state) => {
@@ -125,7 +125,7 @@ const profileSlice = createSlice({
             })
             .addCase(updatePassword.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || 'Failed to update password';
+                state.error = action.payload;
             })
             // Update Avatar
             .addCase(updateAvatar.pending, (state) => {
@@ -139,7 +139,7 @@ const profileSlice = createSlice({
             })
             .addCase(updateAvatar.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || 'Failed to update avatar';
+                state.error = action.payload;
             })
             // Toggle Favorite
             .addCase(toggleFavorite.pending, (state) => {
@@ -152,7 +152,7 @@ const profileSlice = createSlice({
             })
             .addCase(toggleFavorite.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload?.message || 'Failed to update favorites';
+                state.error = action.payload;
             });
     }
 });
